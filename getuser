@@ -1,0 +1,16 @@
+exports.getUser = function(sockName,cb) {
+ mysql.createConnection({
+	        	host: 'localhost',
+                user: 'root',
+                password: 'dMy6bPYBhRYH',
+                database: 'customers'
+	      }).then(function(conn) {
+	            connection = conn ;
+	            var sql='SELECT url_longue,password FROM push WHERE url_longue ="'+sockName+'"' ;
+		                  return connection.query(sql).then(function(rows){
+					  cb(rows[0]); 
+				  })
+	     }).catch(function(error) {
+	         console.log(error);
+   });
+}

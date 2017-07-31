@@ -1,0 +1,132 @@
+body {
+  padding: 0px;
+  font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+ul {
+  list-style-type: none;
+  -webkit-padding-start: 0px;
+}
+
+.bigflash {
+  color:red;
+}
+
+#pub {
+	border:red 0px solid;
+	
+}
+
+#pub_img {
+	max-height:80vh;
+	margin:auto;
+}
+
+#logo {
+  height:10vh;
+  border:red 0px solid;
+}
+
+#logo_img {
+  height:10vh;
+  margin:auto;
+}
+
+#client {
+	border:red 0px solid;
+}
+
+#liste {
+  height:75vh;
+  overflow: scroll ;
+  border:green 0px solid;
+  margin-top:2vh;
+}
+
+#client {
+   font-family: Courier;
+   margin-top:0%;
+   font-size: 20px;
+   padding-top:20px;
+}
+
+
+#ticket_footer { 
+	font-size:2vh ;
+	font-family : Courier;
+	text-align : right;
+	font-weight:bold;
+	margin-right:7vh;
+}
+
+.art_name {
+	display: inline-block;
+	font-family: Courier ;
+	font-size:2vh;
+	width:45%;
+	padding-top:8px;
+	padding-left:8px;
+	font-weight:bold;
+}
+
+.art_qty {
+	display: inline-block;
+	font-family: Courier ;
+	font-size:2vh;
+	font-weight:bold;
+	width:12%;
+	text-align:right;
+	padding-top:8px;
+}
+
+
+.discount {
+    color:orange;
+    font-size:1.8vh;
+    position:relative;
+    top:-0.6vh;
+    left:3vh;
+}
+
+.art_price {
+	display: inline-block;
+	font-family: Courier ;
+	font-size:2vh;
+	width:20%;
+	text-align:right;
+	font-weight:bold;
+}
+ 
+.art_devise {
+	display: inline-block;
+	font-family: Courier ;
+	font-size:2vh;
+	width:4%;
+	text-align:right;
+	font-weight:bold;
+}
+
+.art_img {
+	text-align:center;
+	display: inline-block;
+	color:orange;
+	width:3vw
+}
+
+.art_img img {
+	width:3vw;
+}
+
+.pub_kerawen { 
+	line-height:6vh;
+	display:inline-block;
+	text-align:center;
+}
+
+#kerawen_logo {
+   max-height:40px;
+}
+
+#kerawen {
+    font-size:1.2vh;
+}
