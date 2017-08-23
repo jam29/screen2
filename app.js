@@ -101,7 +101,8 @@ io.on("connection",function(socket)
 	    }
     })
 
-    /* reception de ticket par socket (ticket envoyé par curl par kerawen mais possibilité par socket
+    /* 
+    Reception de ticket par socket (ticket envoyé par curl par kerawen mais possibilité par socket
     socket.on("ticket:"+socket.handshake.query.url_longue+":"+socket.handshake.query.magasin+":"+socket.handshake.query.caisse,function(ticket) {
           var to_caisse = socket.handshake.query.url_longue+socket.handshake.query.magasin+socket.handshake.query.caisse ;
           if (caissesSockets[to_caisse]) {
@@ -110,7 +111,8 @@ io.on("connection",function(socket)
           } else {
             socket.emit("caisse:out");
           }
-    })*/
+    })
+    */
 
     socket.on("affiche_pub",function() {
       var to_caisse = socket.handshake.query.url_longue+socket.handshake.query.magasin+socket.handshake.query.caisse
@@ -186,8 +188,12 @@ app.post('/upload/', function (req, res) {
 
     form.parse(req, function(err, fields, files) {
       res.writeHead(200, {'content-type': 'text/plain'});
-      res.write('received upload:\n\n');
-      res.end(util.inspect({fields: fields, files: files}));    
+      //res.write('received upload:\n\n');
+      //res.end(util.inspect({fields: fields}));    
+      var magasin = fields['magasin'];
+      var caisse = fields['caisse'];
+      var nomfichier = fields['nomfichier'];
+      res.end('{ "magasin": "'+magasin+'", "caisse": "'+caisse+'", "nomfichier": "'+ nomfichier +'" }');
     });
 });
 
