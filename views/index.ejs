@@ -21,21 +21,25 @@
 
 		<div class="row">
 			<div class="col-xs-5 col-md-5 col-lg-5 col-xl-5" >
-		            
 				<div id="pub" style="margin-top:0vh" >
 				<img id="pub_img" class="img-responsive" src='' />	
-				<!--div class="embed-responsive embed-responsive-16by9"   >
+
+				<!--div class="embed-responsive embed-responsive-16by9" >
 					<iframe src="https://www.youtube.com/embed/iGNIojqYgYo?controls=0&showinfo=0&autoplay=1&loop=1&playlist=iGNIojqYgYo" frameborder="0" ></iframe>
-				</div>
-				<img class="img-responsive" src='https://www.compteepargneco2.com/wp-content/uploads/2016/07/bretagne-1024x640.jpg' /-->	
-				
+				</div-->
+
+				<!--div class="embed-responsive embed-responsive-16by9" >
+				   <iframe src="https://player.vimeo.com/video/138192039?title=0&byline=0&portrait=0" frameborder="0" ></iframe>
+				</div-->
+
+				<img class="img-responsive" src='https://www.compteepargneco2.com/wp-content/uploads/2016/07/bretagne-1024x640.jpg' />	
 				</div> 
 			</div>
 
 			<div class="col-xs-7 col-md-7 col-lg-7 col-xl-7" >
 				  <div id="ticket">
-					<div id="logo"><img class="img-responsive" id ="logo_img" src='https://screen.kerawen.com:3030/uploads/100/200/logo_100.jpg'></div>	
-					
+					  <div id="logo">
+						 <img class="img-responsive" id ="logo_img" src=""></div>	
 					 <ul id="liste">	
 					 </ul>
 				<div id="ticket_footer">
@@ -62,6 +66,7 @@
 	<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/async/2.4.0/async.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
+	<script src="js/holder.min.js"></script>
 	<script>
 	
 	$("document").ready(function() {
@@ -84,8 +89,8 @@
 		    var mag = data.id_shop ;
 		    var caisse = data.id_cash_drawer ;
 		    
-		    $("#pub_img").attr("src","https://screen.kerawen.com:3030/uploads/"+mag+"/"+caisse+"/logo_"+mag+".jpg");
-		    $("#pub_logo").attr("src","https://screen.kerawen.com:3030/uploads/"+mag+"/"+caisse+"/logo_"+mag+".jpg");
+		    $("#pub_img").attr("src","https://screen.kerawen.com:3030/uploads/"+mag+"/"+caisse+"/pub_"+mag+".jpg");
+		    $("#logo_img").attr("src","https://screen.kerawen.com:3030/uploads/"+mag+"/"+caisse+"/logo_"+mag+".jpg");
 		    //setTimeout(function(){$("#liste").css("height", $("#pub").height() * 0.8  );},0);
 		}) ;
 
