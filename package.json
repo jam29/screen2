@@ -25,7 +25,7 @@
     "morgan": "~1.5.1",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
-    "promise-mysql": "^3.0.1",
+    "promise-mysql": "^3.0.2",
     "secure-random-string": "^1.0.0",
     "serve-favicon": "~2.2.0",
     "session-file-store": "^1.0.0",

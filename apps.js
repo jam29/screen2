@@ -139,8 +139,8 @@ var Controller = require('./lib/controller.js');
 //--- enrollement.
 app.post('/enroll',Controller.addCaisse) ;
 
-//--- upload image + css.
 
+//--- upload image + css.
 app.get('/formupload/:mag/:caisse',function(req,res) {
     res.render("formupload",{title:'gestion de la pub'});
 })

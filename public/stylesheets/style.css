@@ -13,17 +13,17 @@ ul {
 }
 
 .bigflash {
-  color:red;
+  	color:red;
+}
+
+/* roue dentée pour afficher la meilleure résolution publicité (panneau gauche ) */
+#parametres {
+	margin-left:90vw;
 }
 
 #pub {
-	border:red 0px solid;
-	
-}
-
-#pub_img {
-	max-height:80vh;
-	margin:auto;
+	min-height:92vh;
+	border:red 0px solid;	
 }
 
 #logo {
@@ -32,96 +32,75 @@ ul {
 }
 
 #logo_img {
-  height:10vh;
+  height:8vh;
   margin:auto;
 }
 
-#client {
-	border:red 0px solid;
-}
-
 #liste {
-  height:75vh;
+  height:70vh;
   overflow: scroll ;
   border:green 0px solid;
   margin-top:2vh;
 }
 
-#client {
-   font-family: Courier;
-   margin-top:0%;
-   font-size: 20px;
-   padding-top:20px;
-}
-
-
-#ticket_footer { 
-	font-size:2vh ;
-	font-family : Courier;
-	text-align : right;
-	font-weight:bold;
-	margin-right:7vh;
-}
-
 .art_name {
 	display: inline-block;
-	font-family: Courier ;
-	font-size:2vh;
+	font-size:2.5vh;
 	width:45%;
 	padding-top:8px;
 	padding-left:8px;
-	font-weight:bold;
+	 
 }
 
 .art_qty {
 	display: inline-block;
-	font-family: Courier ;
-	font-size:2vh;
-	font-weight:bold;
+	font-size:2.5vh;
 	width:12%;
 	text-align:right;
-	padding-top:8px;
 }
 
 .discount {
-    color:orange;
-    font-size:1.6vh;
-    /*
+    color:red;
+    font-size:2.5vh;
     position:relative;
-    top:-1vh;
-    left:3vh;
-    */
+    top:0px;left:0.5vw;
 }
 
 
 .art_price {
 	display: inline-block;
-	font-family: Courier ;
-	font-size:2vh;
+	font-size:3vh;
 	width:20%;
 	text-align:right;
-	font-weight:bold;
 }
  
 .art_devise {
 	display: inline-block;
-	font-family: Courier ;
-	font-size:2vh;
-	width:4%;
+	font-size:2.5vh;
+	width:3%;
 	text-align:right;
-	font-weight:bold;
+	 
 }
 
 .art_img {
 	text-align:center;
 	display: inline-block;
 	color:orange;
-	width:3vw
+	width:3vw;
+	background-color: silver;
 }
 
 .art_img img {
-	width:3vw;
+	width:4vw;
 }
+
+#ticket_footer { 
+	font-size:3.5vh ;	
+	text-align : center;
+	font-weight:bold;
+
+}
+
 
 .pub_kerawen { 
 	line-height:6vh;
@@ -134,5 +113,5 @@ ul {
 }
 
 #kerawen {
-    font-size:1.2vh;
+    font-size:2vh;
 }

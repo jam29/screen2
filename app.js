@@ -3,13 +3,13 @@ var im = require('imagemagick');
 var express = require('express');
 var Session = require('express-session');
 
-var passport = require('passport');
-var localStrategy = require('passport-local').Strategy;
+// var passport = require('passport');
+// var localStrategy = require('passport-local').Strategy ;
 
 var fs = require('fs-extra');
 var util = require('util');
 
-var socket = require('socket.io');
+var socket = require('socket.io')({transport:['websocket']});
 var cors = require('cors');
 
 var path = require('path');
@@ -83,48 +83,33 @@ app.use(function(err, req, res, next) {
 
 var Controller = require('./lib/controller.js');
 
-var caissesSockets = [];
-io.on("connection",function(socket)
-  {   
-    
-    socket.on("enregistrer",function(sockName,fnc) {
+io.on("connection",function(socket) {   
+
+    console.log("query:",socket.handshake.query) 
+
+// fonction qui permet aux afficheurs kbox d'obtenir l'url qui sera lancée au démarrage  
+    socket.on("urlraspberry",function(macadress,callback){
+        console.log("MACADRESS:",macadress);
+            Controller.getUrl4Raspberry(macadress,function(retour){
+              callback(retour);
+            })
+    });
+
+    socket.on("enregistrer",function(data,fnc) {
 	    console.log("Enregistre");
-	        socket.join(sockName);
-      		caissesSockets[sockName] = { "socket": socket.id } 
-      		 Controller.getIms(sockName,function(ret) { 
-		       console.log("connection afficheur de la caisse: ", sockName,JSON.stringify(ret)) ;
+	         socket.join(data.sockName);
+      		 Controller.getIms(data.sockName,function(ret) {
+
+		       console.log("connection afficheur de la caisse: ", data.sockName,JSON.stringify(ret)) ;         
           		fnc(ret);
       		 }); 
     }); // end socket.on enregistrer
 
+    // La socket du client qui de deconnecte sort de la room (room=url_longue)
     socket.on("disconnect",function() { 
-	    console.log ("client "+ socket.id+" deconnecté") ;
-	    for (var key in caissesSockets ) {
-	       console.log(caissesSockets[key]); 
-	       if ( caissesSockets[key] == socket.id ) { caissesSockets[key] = null }
-	    }
+            socket.leave(socket.handshake.query.url_longue);
     })
-
-    /* 
-      Reception de ticket par socket (ticket envoyé par curl par kerawen mais possibilité par socket
-      socket.on("ticket:"+socket.handshake.query.url_longue+":"+socket.handshake.query.magasin+":"+socket.handshake.query.caisse,function(ticket) {
-          var to_caisse = socket.handshake.query.url_longue+socket.handshake.query.magasin+socket.handshake.query.caisse ;
-          if (caissesSockets[to_caisse]) {
-            //var id = caissesSockets[to_caisse].socket ;
-            io.to(to_c).emit("affiche_ticket",req.body.ticket);
-          } else {
-            socket.emit("caisse:out");
-          }
-      })
-    */
-
-    socket.on("affiche_pub",function() {
-      var to_caisse = socket.handshake.query.url_longue+socket.handshake.query.magasin+socket.handshake.query.caisse
-          var id = caissesSockets[to_caisse].socket;
-          io.sockets.connected[id].emit("affiche_pub");
-    })
-  }
-)
+})
 
 // Afficheur de caisse
 app.get("/mag/:url_longue",function(req,res) {
@@ -135,28 +120,23 @@ app.get("/mag/:url_longue",function(req,res) {
 // reception de ticket par HTTP (POST)
 app.post("/ticket",function(req,res) {
 	var to_c = req.body.url_longue ;
-	if (caissesSockets[to_c] != null ) {
-		// var id = caissesSockets[to_c].socket;
-       		// io.sockets.connected[id].emit("affiche_ticket",req.body.ticket);
-       		io.sockets.in(to_c).emit("affiche_ticket",req.body.ticket);
-		res.end('ok');
+    if ( to_c != null ) {
+       	io.sockets.in(to_c).emit("affiche_ticket",req.body.ticket);
+		    res.end('ok');
 	} else {
-		console.log("Brancher afficheur");
+	      console.log("Brancher afficheur");
 	}
 })
-
 
 //--- enrollement.
 app.post('/enroll',Controller.addCaisse) ;
 
 //--- upload image + css.
-
 app.get('/formupload/:mag/:caisse',function(req,res) {
     res.render("formupload",{title:'gestion de la pub'});
 })
 
 //---
-
 var makePath = function(path) {
   try {
     fs.mkdirSync(path);
@@ -166,51 +146,29 @@ var makePath = function(path) {
 }
 
 app.get('/screenDecoUrls/:shop/:cashdrawer',function(req,res) {
-
-
-    var url = req.protocol + "://" + req.get('host');
     var shop = req.params.shop ;
     var cashdrawer = req.params.cashdrawer ;
-
-    var path_url = url + "/uploads/" + shop + "/" + cashdrawer +"/"  ;
-
-    var urls = [] ;
-    var nb=0;
-    var path1 = __dirname + '/public/uploads/'+shop+'/'+cashdrawer+'/';
-     
-    async.each(['pub','thumb_pub','logo','thumb_logo'], 
-        function(filePathPartial, callback) {
-            nb++;
-            filePath = path1+filePathPartial+"_"+shop+".jpg";
-            fs.access(filePath, function(err) {
-                                 var obj = {};
-                                 if (!err) { 
-                                    obj['url_'+filePathPartial] = path_url + filePathPartial+"_"+shop+".jpg" ;
-                                    urls.push(obj);
-                                 } 
-                                 else 
-                                 {
-                                    obj['url_'+filePathPartial] = 'holder.js/400x700?text='+filePathPartial ;
-                                    urls.push(obj);
-                                 }
-            callback();
-        });
-      }, function() {
-           var ret_urls = "{";
-           urls.map(function(x,i){
-             //console.log(Object.keys(x)[0],":",x[Object.keys(x)[0]]);
-            if ( i+1 < nb ) { suite = "," } else { suite = "}" } 
-             ret_urls+= '"'+Object.keys(x)[0]+'":"'+x[Object.keys(x)[0]] +'"'+ suite ;
-             
-             //if (nb < 4) 
-           });
-           console.log(ret_urls);
-           res.end(ret_urls);
-    });
-    
+    Controller.getUrls(shop,cashdrawer,function(ret){  
+       var retour = JSON.stringify(ret);
+        console.log(retour.toString());
+        res.end(retour.toString());
+    })
 });
 
+app.get('/delScreenDecoUrls/:shop/:cashdrawer/:type',function(req,res) {
+    var shop = req.params.shop ;
+    var cashdrawer = req.params.cashdrawer ;
+    var type = req.params.type ;
+    Controller.delUrls(shop,cashdrawer,type,function(ret) {
+       var retour = JSON.stringify(ret);
+        console.log(retour);
+        res.end(retour.toString());
+    })
+});
+
+
 app.post('/upload/', function (req, res) {
+    var server_url = "https://screen.kerawen.com:3030/uploads/";
     var fields = [];
     var form = new formidable.IncomingForm();
 
@@ -230,11 +188,12 @@ app.post('/upload/', function (req, res) {
          
         var magasin = fields['magasin'];
         var caisse = fields['caisse'];
-        var nomfichier = fields['nomfichier'];
+        var nomfichier = fields['nomfichier']; // nom fichier avec extension (ex: pub.jpg)
+        var basename = fields['basename']; // nom fichier sans extension (ex: pub)
     
         fs.ensureDir('public/uploads/'+magasin+'/'+caisse+'/',function(){
-          var source = fs.createReadStream(__dirname + '/uploads/' + file.name);
-          var dest =  fs.createWriteStream(__dirname + '/public/uploads/' + magasin + '/' + caisse + '/' + nomfichier );
+          var source =  fs.createReadStream(__dirname + '/uploads/' + file.name);
+          var dest   =  fs.createWriteStream(__dirname + '/public/uploads/' + magasin + '/' + caisse + '/' + nomfichier );
 
           source.pipe(dest);
 
@@ -249,16 +208,24 @@ app.post('/upload/', function (req, res) {
 	          	im.resize({
 		             srcPath: __dirname + '/public/uploads/' + magasin + '/' + caisse + '/' + nomfichier ,
 		             dstPath: __dirname + '/public/uploads/' + magasin + '/' + caisse + '/thumb_'+nomfichier ,
-		             width: 256 }, function(err,stdout,stderr) {
+		             width: 150 }, function(err,stdout,stderr) {
 			               if (err) throw err;
                      // la reponse se fait à la fin du resize
                      console.log("-> miniature créée");
-                     res.end('{ "magasin": "'+magasin+'", "caisse": "'+caisse+'", "nomfichier": "thumb_'+ nomfichier +'" }');
+                      
+                      Controller.setUrl(server_url , magasin, caisse, basename , nomfichier,function(ret) { 
+
+                        res.end('{ "url'+basename+'_thumb" : "'+server_url+magasin+'/'+caisse+'/thumb_'+nomfichier+'" , "url'+basename+'" : "'+server_url+magasin+'/'+caisse+'/'+nomfichier+'" }');
+                        // recup url longue
+                        Controller.getUrlLongue(magasin,caisse,function(url) {
+                          var urlref = server_url+magasin+'/'+caisse+'/'+nomfichier ;
+                          io.sockets.in(url.url_longue).emit("refresh"+basename,{ "urlref": urlref });
+                        })
+                      })
 		             });
 	         });
 
-          source.on('error', function(err) { console.log('error'); });
-        
+          source.on('error', function(err) { console.log('error'); });        
         })
     });
 
