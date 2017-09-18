@@ -33,9 +33,9 @@ var server  = https.createServer(options,app);
 // redirection http -> https
 var http = require('http');
 http.createServer(function (req, res) {
-      var hs = (req.headers['host']).replace("3020","3030");
-      res.writeHead(301, { "Location": "https://" + hs + req.url });
-      res.end();
+  var hs = (req.headers['host']).replace("3020","3030");
+  res.writeHead(301, { "Location": "https://" + hs + req.url });
+  res.end();
 }).listen(3020);
 
 var accessLogStream = fs.createWriteStream(__dirname + '/access.log', { flags: 'a' })
@@ -85,31 +85,31 @@ var Controller = require('./lib/controller.js');
 
 io.on("connection",function(socket) {   
 
-    console.log("query:",socket.handshake.query) 
+  console.log("query:",socket.handshake.query) 
 
 // fonction qui permet aux afficheurs kbox d'obtenir l'url qui sera lancée au démarrage  
-    socket.on("urlraspberry",function(macadress,callback){
-        console.log("MACADRESS:",macadress);
-            Controller.getUrl4Raspberry(macadress,function(retour){
-              callback(retour);
-            })
-    });
+socket.on("urlraspberry",function(macadress,callback){
+  console.log("MACADRESS:",macadress);
+  Controller.getUrl4Raspberry(macadress,function(retour){
+    callback(retour);
+  })
+});
 
-    socket.on("enregistrer",function(data,fnc) {
-	    console.log("Enregistre");
-	         socket.join(data.sockName);
-      		 Controller.getIms(data.sockName,function(ret) {
+socket.on("enregistrer",function(data,fnc) {
+ console.log("Enregistre");
+ socket.join(data.sockName);
+ Controller.getIms(data.sockName,function(ret) {
 
-		       console.log("connection afficheur de la caisse: ", data.sockName,JSON.stringify(ret)) ;         
-          		fnc(ret);
-      		 }); 
+   console.log("connection afficheur de la caisse: ", data.sockName,JSON.stringify(ret)) ;         
+   fnc(ret);
+ }); 
     }); // end socket.on enregistrer
 
     // La socket du client qui de deconnecte sort de la room (room=url_longue)
     socket.on("disconnect",function() { 
-            socket.leave(socket.handshake.query.url_longue);
+      socket.leave(socket.handshake.query.url_longue);
     })
-})
+  })
 
 // Afficheur de caisse
 app.get("/mag/:url_longue",function(req,res) {
@@ -120,21 +120,25 @@ app.get("/mag/:url_longue",function(req,res) {
 // reception de ticket par HTTP (POST)
 app.post("/ticket",function(req,res) {
 	var to_c = req.body.url_longue ;
-    if ( to_c != null ) {
-       	io.sockets.in(to_c).emit("affiche_ticket",req.body.ticket);
-		    res.end('ok');
-	} else {
-	      console.log("Brancher afficheur");
-	}
+  if ( to_c != null ) {
+    io.sockets.in(to_c).emit("affiche_ticket",req.body.ticket);
+    res.end('ok');
+  } else {
+   console.log("Brancher afficheur");
+ }
 })
 
 //--- enrollement.
-app.post('/enroll',Controller.addCaisse) ;
+app.post('/enroll', function(req,res) { 
+Controller.check_licence_key(req.body.shop,req.body.key,function(isok){if(!isok) res.json('BAD')  });
+Controller.addCaisse(req,res) } ) ;
 
+/*
 //--- upload image + css.
 app.get('/formupload/:mag/:caisse',function(req,res) {
     res.render("formupload",{title:'gestion de la pub'});
 })
+*/
 
 //---
 var makePath = function(path) {
@@ -146,91 +150,101 @@ var makePath = function(path) {
 }
 
 app.get('/screenDecoUrls/:shop/:cashdrawer',function(req,res) {
-    var shop = req.params.shop ;
-    var cashdrawer = req.params.cashdrawer ;
-    Controller.getUrls(shop,cashdrawer,function(ret){  
-       var retour = JSON.stringify(ret);
-        console.log(retour.toString());
-        res.end(retour.toString());
-    })
+  var shop = req.params.shop ;
+  var cashdrawer = req.params.cashdrawer ;
+
+  Controller.getUrls(shop,cashdrawer,function(ret){  
+   var retour = JSON.stringify(ret);
+   console.log(retour.toString());
+   res.end(retour.toString());
+ })
 });
 
-app.get('/delScreenDecoUrls/:shop/:cashdrawer/:type',function(req,res) {
-    var shop = req.params.shop ;
-    var cashdrawer = req.params.cashdrawer ;
-    var type = req.params.type ;
-    Controller.delUrls(shop,cashdrawer,type,function(ret) {
-       var retour = JSON.stringify(ret);
+app.post('/delScreenDecoUrls/:shop/:cashdrawer/:type',function(req,res) {
+  Controller.check_licence_key(req.params.shop,req.body.key,function(isok){ 
+    if(!isok) { res.end("BAD") } else {
+      var shop = req.params.shop ;
+      var cashdrawer = req.params.cashdrawer ;
+      var type = req.params.type ;
+      Controller.delUrls(shop,cashdrawer,type,function(ret) {
+        var retour = JSON.stringify(ret);
         console.log(retour);
         res.end(retour.toString());
-    })
-});
+      })
+    }
+  })
+})
 
 
 app.post('/upload/', function (req, res) {
-    var server_url = "https://screen.kerawen.com:3030/uploads/";
-    var fields = [];
-    var form = new formidable.IncomingForm();
 
-    form.on('field',function(field,value){
-           fields[field]=value;
-    })
+  var server_url = "https://screen.kerawen.com:3030/uploads/";
+  var fields = [];
+  var form = new formidable.IncomingForm();
 
-    form.on('fileBegin', function (name, file) {
-        file.path = __dirname + '/uploads/' + file.name;
-    });
+  form.on('field',function(field,value) {
+    console.log(field,':',value);
+    fields[field]=value;
+    if(fields['magasin'] && fields['key']) { 
+      Controller.check_licence_key(fields['magasin'],fields['key'],function(isok){  if(!isok) res.end('BAD') });
+    }
+  })
 
-    form.on('progress', function(bytesReceived, bytesExpected) {
+  form.on('fileBegin', function (name, file) {
+    file.path = __dirname + '/uploads/' + file.name;
+  });
+
+  form.on('progress', function(bytesReceived, bytesExpected) {
          // console.log('progress')
-    });
+       });
 
-    form.on('file', function (name, file) {
-         
-        var magasin = fields['magasin'];
-        var caisse = fields['caisse'];
-        var nomfichier = fields['nomfichier']; // nom fichier avec extension (ex: pub.jpg)
-        var basename = fields['basename']; // nom fichier sans extension (ex: pub)
-    
-        fs.ensureDir('public/uploads/'+magasin+'/'+caisse+'/',function(){
-          var source =  fs.createReadStream(__dirname + '/uploads/' + file.name);
-          var dest   =  fs.createWriteStream(__dirname + '/public/uploads/' + magasin + '/' + caisse + '/' + nomfichier );
+  form.on('file', function (name, file) {
 
-          source.pipe(dest);
+    var magasin = fields['magasin'];
+    var caisse = fields['caisse'];
+          var nomfichier = fields['nomfichier']; // nom fichier avec extension (ex: pub.jpg)
+          var basename = fields['basename']; // nom fichier sans extension (ex: pub)
 
-          source.on('end', function() { 
-		        console.log('-> fichier chargé'); 
+          fs.ensureDir('public/uploads/'+magasin+'/'+caisse+'/',function(){
+            var source =  fs.createReadStream(__dirname + '/uploads/' + file.name);
+            var dest   =  fs.createWriteStream(__dirname + '/public/uploads/' + magasin + '/' + caisse + '/' + nomfichier );
 
-            		im.identify(__dirname + '/public/uploads/' + magasin + '/' + caisse + '/' + nomfichier ,function(err,features){
-              		if (err) throw err;
+            source.pipe(dest);
+
+            source.on('end', function() { 
+              console.log('-> fichier chargé'); 
+
+              im.identify(__dirname + '/public/uploads/' + magasin + '/' + caisse + '/' + nomfichier ,function(err,features){
+                if (err) throw err;
               			// console.log(features);
-            		})
+                  })
 
-	          	im.resize({
-		             srcPath: __dirname + '/public/uploads/' + magasin + '/' + caisse + '/' + nomfichier ,
-		             dstPath: __dirname + '/public/uploads/' + magasin + '/' + caisse + '/thumb_'+nomfichier ,
-		             width: 150 }, function(err,stdout,stderr) {
-			               if (err) throw err;
+              im.resize({
+               srcPath: __dirname + '/public/uploads/' + magasin + '/' + caisse + '/' + nomfichier ,
+               dstPath: __dirname + '/public/uploads/' + magasin + '/' + caisse + '/thumb_'+nomfichier ,
+               width: 150 }, function(err,stdout,stderr) {
+                if (err) throw err;
                      // la reponse se fait à la fin du resize
                      console.log("-> miniature créée");
-                      
-                      Controller.setUrl(server_url , magasin, caisse, basename , nomfichier,function(ret) { 
 
-                        res.end('{ "url'+basename+'_thumb" : "'+server_url+magasin+'/'+caisse+'/thumb_'+nomfichier+'" , "url'+basename+'" : "'+server_url+magasin+'/'+caisse+'/'+nomfichier+'" }');
+                     Controller.setUrl(server_url , magasin, caisse, basename , nomfichier,function(ret) { 
+
+                      res.end('{ "url'+basename+'_thumb" : "'+server_url+magasin+'/'+caisse+'/thumb_'+nomfichier+'" , "url'+basename+'" : "'+server_url+magasin+'/'+caisse+'/'+nomfichier+'" }');
                         // recup url longue
                         Controller.getUrlLongue(magasin,caisse,function(url) {
                           var urlref = server_url+magasin+'/'+caisse+'/'+nomfichier ;
                           io.sockets.in(url.url_longue).emit("refresh"+basename,{ "urlref": urlref });
                         })
                       })
-		             });
-	         });
+                   });
+});
 
-          source.on('error', function(err) { console.log('error'); });        
-        })
-    });
+source.on('error', function(err) { console.log('error'); });        
+})
+});
 
-    form.parse(req, function(err, fields, files) {
-      res.writeHead(200, {'content-type': 'text/plain'});
+form.parse(req, function(err, fields, files) {
+  res.writeHead(200, {'content-type': 'text/plain'});
       // res.write('received upload:\n\n');
       // res.end(util.inspect({fields: fields}));    
       /*
@@ -238,9 +252,10 @@ app.post('/upload/', function (req, res) {
           var caisse = fields['caisse'];
           var nomfichier = fields['nomfichier'];
           res.end('{ "magasin": "'+magasin+'", "caisse": "'+caisse+'", "nomfichier": "thumb_'+ nomfichier +'" }');
-      */
+          */
 
-    });
+        });
+  //}}); //else 
 });
 
 server.listen(3030);
