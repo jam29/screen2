@@ -16,19 +16,12 @@ ul {
   	color:red;
 }
 
-/* roue dentée pour afficher la meilleure résolution publicité (panneau gauche ) */
-#parametres {
-	margin-left:90vw;
-}
-
 #pub {
 	min-height:92vh;
-	border:red 0px solid;	
 }
 
 #logo {
   height:10vh;
-  border:red 0px solid;
 }
 
 #logo_img {
@@ -39,7 +32,6 @@ ul {
 #liste {
   height:70vh;
   overflow: scroll ;
-  border:green 0px solid;
   margin-top:2vh;
 }
 
@@ -101,15 +93,14 @@ ul {
 
 }
 
-
 .pub_kerawen { 
-	line-height:6vh;
 	display:inline-block;
+	line-height:6vh;
 	text-align:center;
 }
 
 #kerawen_logo {
-   max-height:40px;
+   max-height:4vh;
 }
 
 #kerawen {

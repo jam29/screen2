@@ -5,23 +5,29 @@
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontawesome/4.7.0/css/font-awesome.min.css">
-        <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    
 </head>
 
 <body>
 	<div class="container-fluid">
-
 		<div class="row">
-			<div class="col-xs-12 col-md-12 col-lg-12 col-xl-12" style="border-bottom:black 1px solid;background-color:silver;"> 
+			<div class="col-xs-11 col-md-11 col-lg-11 col-xl-11" style="border-bottom:black 1px solid;background-color:silver;"> 
 				<span id="connection">
 				     <i class="fa fa-wifi" aria-hidden="true"></i>
 			    </span>
-			    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-			    <span id="parametres">
-			        <i class="fa fa-cog" aria-hidden="true"></i>
-			    </span>
-
 			</div>
+			
+			 
+			<div class="col-xs-1 col-md-1 col-lg-1 col-xl-1" style="border-bottom:black 1px solid;background-color:silver;"> 
+				<span id="parametres">
+				     <i class="fa fa-cog" aria-hidden="true"></i>
+			    </span>
+			</div>
+
+			 
+		</div>
+		
 		</div>
 
 		<div class="row">
@@ -66,33 +72,44 @@
 	<script>
 	
 	$("document").ready(function() {
- 
-		 var socket = io({secure: true, rejectUnauthorized: false, transport: ['websocket'] , query: "url_longue=<%= url_longue %>&transport=websocket" } );
 
-		 socket.on('disconnect', function() {
+		var refreshCss = function(magasin,caisse) {
+			$.get("/uploads/"+magasin+'/'+caisse+"/style.css", function() {  })
+				.done( function() { $('head').append('<link rel="stylesheet" href="/uploads/'+magasin+'/'+caisse+'/style.css" type="text/css" />'); } )
+				.fail( function() { } );
+		}
+ 
+		var socket = io({secure: true, rejectUnauthorized: false, transport: ['websocket'] , query: "url_longue=<%= url_longue %>" } );
+
+		socket.on('disconnect', function() {
 			 $("#connection").html('<i class="fa fa-wrench" aria-hidden="true"></i>')
 		     $("#connection").css("color","red");
-	     }); 
+	    }); 
 		      
-		 socket.on('reconnect', function() {
+		socket.on('reconnect', function() {
 		       location.reload(); 
 		 });
 
 		var socketName = "<%= url_longue %>" ;
 		
 		socket.emit("enregistrer",{ sockName:socketName, largeur:$("#pub").width(), hauteur:$("#pub").height() }, function(data){
-		    $("#pub_img").attr("src",data.url_pub);  
+		    $("#pub_img").attr("src",data.url_pub);
 		    $("#logo_img").attr("src",data.url_logo);  
+		    refreshCss(data.id_shop,data.id_cash_drawer);
 		});
 		
 		socket.on("refreshpub",function(data) { 
 			$("#pub_img").attr("src","");
-			setTimeout( function() { $("#pub_img").attr("src",data.urlref+"?"+(new Date().getTime())) ; }, 1500 ) ;
+			setTimeout( function() { $("#pub_img").attr("src",data.urlref+"?"+(new Date().getTime())) ; }, 5 ) ;
         })
 
         socket.on("refreshlogo",function(data) { 
 			$("#logo_img").attr("src","");
-			setTimeout( function() { $("#logo_img").attr("src",data.urlref+"?"+(new Date().getTime())) ; }, 1500 ) ;
+			setTimeout( function() { $("#logo_img").attr("src",data.urlref+"?"+(new Date().getTime())) ; }, 5 ) ;
+        })
+
+        socket.on("refreshcss",function(data) {
+        	refreshCss(data.shop,data.cashdrawer) ;
         })
 
 // Affiche ticket 
@@ -103,6 +120,7 @@
 					// $("#client_prenom").html(jtik.cust.firstname+" ");
 					// $("#client_nom").html(jtik.cust.lastname);
 		async.series([
+		
 		// affiche les produits
 		function(callback)  {
 					$("ul#liste").html("");
