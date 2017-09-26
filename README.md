@@ -41,3 +41,18 @@ Name[en_US]=AutoChromium
 
 Name=AutoChromium
 
+* stopper screensaver
+
+Ouvrir :
+
+/etc/lightdm/lightdm.conf
+
+Chercher :
+
+#xserver-command=X
+
+Remplacer par :
+
+xserver-command=X -s 0 -dpms
+
+
