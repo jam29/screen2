@@ -4,17 +4,17 @@ kerawen afficheur
 ## enrollement
 
 ## upload
-* Pour créer une ligne dans la base screen; faire un POST de
+* Pour créer une ligne dans la base customer / table push ; faire un POST de
 	* shop (domaine)
 	* id_cash_drawer
 
 * pour uploader l'image publicitaire et le logo faire un POST de
-	* fichier jpeg
-	* nom du fichier ([pub|logo]_+id_shop.jpg)
+	* fichier (ext = jpeg/gif/png) 
+	* nom du fichier ([pub|logo].ext)
 	* shop
 	* id_cash_drawer
 
-# côté raspberry . Il y aura possibilité pour un raspberry de lancer un browser en mode kiosk et affichier l'écran (pub+logo+ticket de caissei dynamique)
+# côté raspberry . Il y aura possibilité pour un raspberry de lancer un browser en mode kiosk et afficher l'écran (pub+logo+ticket de caisse dynamique)
 
 * lancement de chromium and mode kiosk avec l'url:
 
