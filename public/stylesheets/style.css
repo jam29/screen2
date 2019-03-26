@@ -44,6 +44,10 @@ ul {
 	 
 }
 
+.art_ref {
+	font-size:2vh;
+}
+
 .art_qty {
 	display: inline-block;
 	font-size:2.5vh;
@@ -83,14 +87,13 @@ ul {
 }
 
 .art_img img {
-	width:4vw;
+	width:3vw;
 }
 
 #ticket_footer { 
 	font-size:3.5vh ;	
 	text-align : center;
 	font-weight:bold;
-
 }
 
 .pub_kerawen { 

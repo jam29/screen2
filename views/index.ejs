@@ -126,11 +126,11 @@
 					$("ul#liste").html("");
 					var thumbnail;
 					_.map(jtik.products,function(art) {
-						 // if (art.img) { thumbnail = "http:"+art.img ;	} else { thumbnail = "https://screen.kerawen.com:3030/images/blanc.png";}
+						  //if (art.img) { thumbnail = "https:"+art.img ;	} else { thumbnail = "https://screen.kerawen.com:3030/images/blanc.png";}
 						 	thumbnail = "https://screen.kerawen.com:3030/images/blanc.png";
 							var discount = '';
                             if(art.discount) { discount =  '<del class="discount">'+(art.price_init).toFixed(2)+jtik.suffix+'</del>'; }         
-							$("ul#liste").append('<li><span class="art_img"><img id='+art.prod+' src='+thumbnail+' ></span><span class="art_name">'+art.name+'</span><span class="art_qty">x'+art.qty+'</span><span class="art_devise">'+jtik.prefix+'</span><span class="art_price">'+discount+' '+(art.price).toFixed(2)+'</span><span class="art_devise">'+jtik.suffix+'</span>');
+			    $("ul#liste").append('<li><span class="art_img"><img id='+art.prod+' src='+thumbnail+' ></span><span class="art_name">'+art.name+'</span><span class="art_ref">('+art.reference+')</span><span class="art_qty">x'+art.qty+'</span><span class="art_devise">'+jtik.prefix+'</span><span class="art_price">'+discount+' '+(art.price).toFixed(2)+'</span><span class="art_devise">'+jtik.suffix+'</span>');
 
 					});
 					callback(null,'produit');
