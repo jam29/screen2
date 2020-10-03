@@ -23,8 +23,9 @@ var bodyParser = require('body-parser');
 var formidable = require('formidable');
 
 var options = {
-  key: fs.readFileSync('/var/www/clients/client0/web22/ssl/screen.kerawen.com.key'),
-  cert: fs.readFileSync('/var/www/clients/client0/web22/ssl/screen.kerawen.com.crt')
+  key: fs.readFileSync('/var/www/clients/client0/web22/ssl/new-key.pem'),
+  cert: fs.readFileSync('/var/www/clients/client0/web22/ssl/new-cert.pem'),
+  ca: fs.readFileSync('/var/www/clients/client0/web22/ssl/new-bundle.pem')
 }
 
 var app     = express();
@@ -122,6 +123,7 @@ app.get("/mag/:url_longue",function(req,res) {
 
 // reception de ticket par HTTP (POST) pour afficher le ticket sur l'écran.
 app.post("/ticket",function(req,res) {
+	console.log(req.body);
     var to_c = req.body.url_longue ;
     if ( to_c != null ) {
 	  console.log(req.body.ticket);
